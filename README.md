@@ -1,21 +1,42 @@
-# 🦷 DentalVoice
+🦷 DentWise – AI-Powered Dental Assistant
 
-AI Powered Dental Voice Assistant
+DentWise is a modern SaaS-style AI dental assistant platform built with Next.js 15.
+It combines voice AI, authentication, and a production-ready UI to deliver instant dental guidance and appointment booking.
 
-## Features
-- Voice assistant for dental clinic
-- Appointment booking
-- Patient authentication
-- Database integration
+Inspired by real-world AI startups, DentWise demonstrates scalable architecture, modern UI design, and real SaaS structure.
 
-## Tech Stack
-- Frontend: React
-- Backend: Node.js / Python
-- Database: MongoDB / MySQL
+🚀 Live Concept
 
-## Installation
+DentWise enables users to:
 
-1. Clone repo
-2. Install dependencies
-3. Run backend
-4. Run frontend
+🎙 Talk to an AI dental assistant (via Vapi)
+
+📅 Book dental appointments
+
+🔐 Authenticate securely with Clerk
+
+💬 Receive instant AI consultation guidance
+
+💳 View pricing plans and upgrade options
+
+✨ Features
+
+✨ Modern SaaS Landing Page
+
+🎙 Vapi AI Voice Integration
+
+🔐 Clerk Authentication (Sign In / Sign Up)
+
+🤖 AI Consultation Concept UI
+
+📅 Smart Appointment Booking Interface
+
+💳 Pricing Plans with Comparison
+
+🎨 Glassmorphism & Gradient UI
+
+📱 Fully Responsive Design
+
+⚡ Optimized Image Handling with Next.js
+
+🧪 CodeRabbit-ready clea
