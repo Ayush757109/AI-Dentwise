@@ -1,9 +1,18 @@
 "use client";
 
-import { useGetAppointments, useUpdateAppointmentStatus } from "@/hooks/use-appointment";
+import {
+  useGetAppointments,
+  useUpdateAppointmentStatus,
+} from "@/hooks/use-appointment";
 import { AppointmentStatus } from "@prisma/client";
 import { Badge } from "../ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Calendar } from "lucide-react";
 import {
   Table,
@@ -14,10 +23,8 @@ import {
   TableRow,
 } from "../ui/table";
 import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
 
-/**
- * This must match what your API actually returns
- */
 interface AppointmentWithRelations {
   id: string;
   date: string | Date;
@@ -30,23 +37,18 @@ interface AppointmentWithRelations {
 }
 
 export default function RecentAppointments() {
-  const { data } = useGetAppointments();
+  const { data, isLoading } = useGetAppointments();
   const appointments: AppointmentWithRelations[] = data ?? [];
 
   const updateAppointmentMutation = useUpdateAppointmentStatus();
 
-  const handleToggleAppointmentStatus = (appointmentId: string) => {
-    const appointment = appointments.find((apt) => apt.id === appointmentId);
-    if (!appointment) return;
-
-    const newStatus: AppointmentStatus =
-      appointment.status === "CONFIRMED"
-        ? "COMPLETED"
-        : "CONFIRMED";
-
+  const handleStatusChange = (
+    appointmentId: string,
+    status: AppointmentStatus
+  ) => {
     updateAppointmentMutation.mutate({
       id: appointmentId,
-      status: newStatus,
+      status,
     });
   };
 
@@ -54,14 +56,20 @@ export default function RecentAppointments() {
     switch (status) {
       case "CONFIRMED":
         return (
-          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
             Confirmed
           </Badge>
         );
       case "COMPLETED":
         return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+          <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
             Completed
+          </Badge>
+        );
+      case "CANCELLED":
+        return (
+          <Badge className="bg-red-100 text-red-700 hover:bg-red-100">
+            Cancelled
           </Badge>
         );
       default:
@@ -70,7 +78,7 @@ export default function RecentAppointments() {
   };
 
   return (
-    <Card>
+    <Card className="shadow-sm border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
@@ -82,22 +90,49 @@ export default function RecentAppointments() {
       </CardHeader>
 
       <CardContent>
-        <div className="rounded-lg border">
+        <div className="rounded-lg border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Patient</TableHead>
                 <TableHead>Doctor</TableHead>
-                <TableHead>Date & Time</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Reason</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
+              {isLoading && (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    <Loader2 className="animate-spin mx-auto mb-2" />
+                    Loading appointments...
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {!isLoading && appointments.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    No appointments found.
+                  </TableCell>
+                </TableRow>
+              )}
+
               {appointments.map((appointment) => (
-                <TableRow key={appointment.id}>
+                <TableRow
+                  key={appointment.id}
+                  className="hover:bg-muted/40 transition"
+                >
+                  {/* Patient */}
                   <TableCell>
                     <div>
                       <div className="font-medium">
@@ -109,14 +144,18 @@ export default function RecentAppointments() {
                     </div>
                   </TableCell>
 
+                  {/* Doctor */}
                   <TableCell className="font-medium">
                     {appointment.doctorName}
                   </TableCell>
 
+                  {/* Date */}
                   <TableCell>
                     <div>
                       <div className="font-medium">
-                        {new Date(appointment.date).toLocaleDateString()}
+                        {new Date(
+                          appointment.date
+                        ).toLocaleDateString()}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {appointment.time}
@@ -124,39 +163,53 @@ export default function RecentAppointments() {
                     </div>
                   </TableCell>
 
+                  {/* Reason */}
                   <TableCell>
                     {appointment.reason ?? "—"}
                   </TableCell>
 
+                  {/* Status */}
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        handleToggleAppointmentStatus(appointment.id)
-                      }
-                      className="h-6 px-2"
-                      disabled={updateAppointmentMutation.isPending}
-                    >
-                      {getStatusBadge(appointment.status)}
-                    </Button>
+                    {getStatusBadge(appointment.status)}
                   </TableCell>
 
+                  {/* Action */}
                   <TableCell className="text-right">
-                    <div className="text-xs text-muted-foreground">
-                      Click status to toggle
+                    <div className="flex justify-end gap-2">
+                      {appointment.status !== "CONFIRMED" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            handleStatusChange(
+                              appointment.id,
+                              "CONFIRMED"
+                            )
+                          }
+                          disabled={updateAppointmentMutation.isPending}
+                        >
+                          Confirm
+                        </Button>
+                      )}
+
+                      {appointment.status !== "COMPLETED" && (
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            handleStatusChange(
+                              appointment.id,
+                              "COMPLETED"
+                            )
+                          }
+                          disabled={updateAppointmentMutation.isPending}
+                        >
+                          Complete
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
-
-              {appointments.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                    No appointments found.
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </div>

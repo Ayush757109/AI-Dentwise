@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Calendar, UserCheck, Clock } from "lucide-react";
+import { Users, Calendar, UserCheck, Clock, TrendingUp } from "lucide-react";
 
 interface AdminStatsProps {
   totalDoctors: number;
@@ -8,70 +8,101 @@ interface AdminStatsProps {
   completedAppointments: number;
 }
 
-function AdminStats({
+export default function AdminStats({
   activeDoctors,
   totalDoctors,
   completedAppointments,
   totalAppointments,
 }: AdminStatsProps) {
+  const completionRate =
+    totalAppointments > 0
+      ? Math.round((completedAppointments / totalAppointments) * 100)
+      : 0;
+
   return (
-    <div className="grid md:grid-cols-4 gap-6 mb-12">
-      <Card className="border-2 hover:border-primary/30 transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-              <Users className="size-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{totalDoctors}</div>
-              <div className="text-sm text-muted-foreground">Total Doctors</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
+      <StatCard
+        title="Total Doctors"
+        value={totalDoctors}
+        icon={Users}
+        subtitle={`${activeDoctors} active`}
+      />
 
-      <Card className="border-2 hover:border-primary/30 transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-              <UserCheck className="size-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{activeDoctors}</div>
-              <div className="text-sm text-muted-foreground">Active Doctors</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Active Doctors"
+        value={activeDoctors}
+        icon={UserCheck}
+        subtitle={`${totalDoctors - activeDoctors} inactive`}
+      />
 
-      <Card className="border-2 hover:border-primary/30 transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-              <Calendar className="size-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{totalAppointments}</div>
-              <div className="text-sm text-muted-foreground">Total Appointments</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Total Appointments"
+        value={totalAppointments}
+        icon={Calendar}
+        subtitle="All scheduled"
+      />
 
-      <Card className="border-2 hover:border-primary/30 transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-              <Clock className="size-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{completedAppointments}</div>
-              <div className="text-sm text-muted-foreground">Completed Appointments</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Completion Rate"
+        value={`${completionRate}%`}
+        icon={Clock}
+        subtitle={`${completedAppointments} completed`}
+        highlight
+      />
     </div>
   );
 }
-export default AdminStats;
+
+/* ================================
+   REUSABLE STAT CARD
+================================ */
+
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  subtitle?: string;
+  icon: any;
+  highlight?: boolean;
+}
+
+function StatCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  highlight,
+}: StatCardProps) {
+  return (
+    <Card className="relative overflow-hidden border bg-card hover:shadow-xl transition-all duration-300 group">
+      <CardContent className="p-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <h3 className="text-3xl font-bold tracking-tight">{value}</h3>
+          </div>
+
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition 
+              ${
+                highlight
+                  ? "bg-primary text-white"
+                  : "bg-primary/10 text-primary group-hover:bg-primary/20"
+              }`}
+          >
+            <Icon className="w-6 h-6" />
+          </div>
+        </div>
+
+        {subtitle && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <TrendingUp className="w-4 h-4 text-green-500" />
+            {subtitle}
+          </div>
+        )}
+      </CardContent>
+
+      {/* subtle animated glow effect */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-gradient-to-br from-primary/5 to-transparent" />
+    </Card>
+  );
+}
