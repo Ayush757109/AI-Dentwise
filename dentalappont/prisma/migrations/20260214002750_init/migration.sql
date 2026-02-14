@@ -1,24 +1,8 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Appointment` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
 
 -- CreateEnum
 CREATE TYPE "AppointmentStatus" AS ENUM ('CONFIRMED', 'COMPLETED');
-
--- DropForeignKey
-ALTER TABLE "Appointment" DROP CONSTRAINT "Appointment_userId_fkey";
-
--- DropTable
-DROP TABLE "Appointment";
-
--- DropTable
-DROP TABLE "User";
 
 -- CreateTable
 CREATE TABLE "users" (
