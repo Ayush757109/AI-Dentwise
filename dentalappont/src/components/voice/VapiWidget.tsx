@@ -8,10 +8,21 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { Mic, PhoneOff, Loader2 } from "lucide-react";
 
+/* =============================
+   TYPES
+==============================*/
+
 type TranscriptMessage = {
   role: "assistant" | "user";
   content: string;
 };
+
+interface VapiTranscriptMessage {
+  type?: string;
+  transcriptType?: string;
+  role?: string;
+  transcript?: string;
+}
 
 export default function VapiWidget() {
   const { user, isLoaded } = useUser();
@@ -25,7 +36,7 @@ export default function VapiWidget() {
   const [duration, setDuration] = useState(0);
 
   const messageContainerRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
 
@@ -48,12 +59,16 @@ export default function VapiWidget() {
         setDuration((prev) => prev + 1);
       }, 1000);
     } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
       setDuration(0);
     }
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     };
   }, [callActive]);
 
@@ -78,15 +93,19 @@ export default function VapiWidget() {
     const handleSpeechStart = () => setIsSpeaking(true);
     const handleSpeechEnd = () => setIsSpeaking(false);
 
-    const handleMessage = (message: any) => {
+    const handleMessage = (message: VapiTranscriptMessage) => {
       if (
-        message?.type === "transcript" &&
-        message?.transcriptType === "final"
+        message.type === "transcript" &&
+        message.transcriptType === "final" &&
+        typeof message.transcript === "string"
       ) {
+        const role: "assistant" | "user" =
+          message.role === "assistant" ? "assistant" : "user";
+
         setMessages((prev) => [
           ...prev,
           {
-            role: message.role === "assistant" ? "assistant" : "user",
+            role,
             content: message.transcript,
           },
         ]);
@@ -155,7 +174,6 @@ export default function VapiWidget() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
-
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
@@ -176,7 +194,6 @@ export default function VapiWidget() {
 
       {/* VIDEO CARDS */}
       <div className="grid md:grid-cols-2 gap-8">
-
         {/* AI CARD */}
         <Card className="p-8 flex flex-col items-center text-center relative">
           <div

@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Calendar, UserCheck, Clock, TrendingUp } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface AdminStatsProps {
   totalDoctors: number;
@@ -61,7 +62,7 @@ interface StatCardProps {
   title: string;
   value: number | string;
   subtitle?: string;
-  icon: any;
+  icon: LucideIcon; // ✅ FIXED (removed `any`)
   highlight?: boolean;
 }
 
