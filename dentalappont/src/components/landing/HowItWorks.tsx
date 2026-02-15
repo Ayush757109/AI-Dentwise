@@ -1,11 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { SignUpButton } from "@clerk/nextjs";
-import { ArrowRightIcon, ZapIcon } from "lucide-react";
+import { ArrowRightIcon, CheckCircle2Icon, ZapIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 
 function HowItWorks() {
+  const [started, setStarted] = useState(false);
+
+  const handleStart = () => {
+    setStarted(true);
+  };
+
   return (
     <section className="relative py-36 px-6 max-w-7xl mx-auto">
 
@@ -39,107 +46,84 @@ function HowItWorks() {
       </div>
 
       {/* STEPS */}
-      <div className="relative">
-
-        {/* CONNECTOR LINE */}
-        <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-transparent -translate-y-1/2" />
-
-        <div className="grid lg:grid-cols-3 gap-12">
-
-          {/* STEP CARD COMPONENT STYLE */}
-          {[
-            {
-              title: "Ask Questions",
-              description:
-                "Chat with our AI assistant about symptoms, treatments, and oral health. Get instant answers anytime.",
-              img: "/audio.png",
-              features: ["24/7 Available", "Instant Response"],
-            },
-            {
-              title: "Get Expert Advice",
-              description:
-                "Receive AI-powered insights trained on thousands of dental cases for personalized recommendations.",
-              img: "/brain.png",
-              features: ["AI-Powered", "Personalized"],
-            },
-            {
-              title: "Book & Get Care",
-              description:
-                "Schedule with verified dentists and receive comprehensive follow-up care with seamless tracking.",
-              img: "/calendar.png",
-              features: ["Verified Doctors", "Progress Tracking"],
-            },
-          ].map((step, index) => (
-            <div key={index} className="relative group">
-
-              <div className="relative bg-card/70 backdrop-blur-xl border border-border/50 rounded-3xl p-10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/40">
-
-                {/* STEP NUMBER */}
-                <div className="absolute -top-5 left-10 w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center text-primary-foreground font-semibold shadow-lg">
-                  {index + 1}
-                </div>
-
-                {/* ICON */}
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Image
-                    src={step.img}
-                    alt={step.title}
-                    width={40}
-                    height={40}
-                    className="w-14"
-                  />
-                </div>
-
-                <h3 className="text-2xl font-bold text-center mb-4">
-                  {step.title}
-                </h3>
-
-                <p className="text-muted-foreground text-center leading-relaxed mb-6">
-                  {step.description}
-                </p>
-
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {step.features.map((feature, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full"
-                    >
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-
-              </div>
+      <div className="grid lg:grid-cols-3 gap-12">
+        {[
+          {
+            title: "Ask Questions",
+            description:
+              "Chat with our AI assistant about symptoms and treatments.",
+            img: "/audio.png",
+          },
+          {
+            title: "Get Expert Advice",
+            description:
+              "Receive AI-powered insights for personalized recommendations.",
+            img: "/brain.png",
+          },
+          {
+            title: "Book & Get Care",
+            description:
+              "Schedule with verified dentists in real time.",
+            img: "/calendar.png",
+          },
+        ].map((step, index) => (
+          <div
+            key={index}
+            className="bg-card border rounded-3xl p-10 text-center hover:-translate-y-2 transition-all duration-300"
+          >
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Image
+                src={step.img}
+                alt={step.title}
+                width={40}
+                height={40}
+              />
             </div>
-          ))}
-        </div>
+
+            <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+            <p className="text-muted-foreground">{step.description}</p>
+          </div>
+        ))}
       </div>
 
-      {/* STRONG CTA SECTION */}
+      {/* CTA SECTION */}
       <div className="mt-28 text-center">
+        {!started ? (
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-10 rounded-3xl border backdrop-blur-lg">
+            <h3 className="text-3xl font-bold mb-4">
+              Start your smarter dental journey today
+            </h3>
 
-        <div className="inline-block bg-gradient-to-r from-primary/10 to-primary/5 p-10 rounded-3xl border border-primary/20 backdrop-blur-lg">
+            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+              Join thousands improving their oral health using DentWise AI.
+            </p>
 
-          <h3 className="text-3xl font-bold mb-4">
-            Start your smarter dental journey today
-          </h3>
+            <SignUpButton mode="modal">
+              <Button
+                size="lg"
+                onClick={handleStart}
+                className="px-8 shadow-lg hover:scale-105 transition-transform"
+              >
+                <ArrowRightIcon className="mr-2 size-5" />
+                Get Started Free
+              </Button>
+            </SignUpButton>
+          </div>
+        ) : (
+          /* AFTER CLICK SUCCESS STATE */
+          <div className="bg-green-50 border border-green-200 p-10 rounded-3xl animate-fade-in">
+            <CheckCircle2Icon className="mx-auto text-green-600 mb-4 size-10" />
 
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Join thousands of patients already improving their oral health
-            using DentWise AI.
-          </p>
+            <h3 className="text-2xl font-bold text-green-700 mb-3">
+              You're almost there!
+            </h3>
 
-          <SignUpButton>
-            <Button
-              size="lg"
-              className="px-8 shadow-lg shadow-primary/30 hover:scale-105 transition-transform"
-            >
-              <ArrowRightIcon className="mr-2 size-5" />
-              Get Started Free
-            </Button>
-          </SignUpButton>
-
-        </div>
+            <p className="text-green-600 max-w-md mx-auto">
+              Complete your sign-up to unlock AI-powered dental care and
+              real-time booking features.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
