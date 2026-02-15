@@ -21,6 +21,7 @@ export interface AppointmentDTO {
   patientName: string;
   patientEmail: string;
   doctorName: string;
+  doctorId?: string;
 }
 
 export interface UpdateAppointmentInput {
@@ -72,6 +73,7 @@ export function useBookAppointment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["userAppointments"] });
+      queryClient.invalidateQueries({ queryKey: ["bookedTimeSlots"] });
     },
   });
 }
@@ -114,5 +116,32 @@ export function useUpdateAppointmentStatus() {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["userAppointments"] });
     },
+  });
+}
+
+/* ===========================
+   BOOKED TIME SLOTS (FIXED)
+=========================== */
+
+export function useBookedTimeSlots(
+  doctorId: string,
+  date: string
+) {
+  return useQuery<string[]>({
+    queryKey: ["bookedTimeSlots", doctorId, date],
+    queryFn: async () => {
+      if (!doctorId || !date) return [];
+
+      const res = await fetch(
+        `/api/appointments/booked-slots?doctorId=${doctorId}&date=${date}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch booked time slots");
+      }
+
+      return res.json();
+    },
+    enabled: !!doctorId && !!date,
   });
 }

@@ -7,12 +7,19 @@ import Navbar from "@/components/Navbar";
 import { useGetAppointments } from "@/hooks/use-appointment";
 import { useGetDoctors } from "@/hooks/use-doctors";
 import { useUser } from "@clerk/nextjs";
-import { SettingsIcon } from "lucide-react";
+import {
+  SettingsIcon,
+  HomeIcon,
+  CalendarIcon,
+  MicIcon,
+  CrownIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 function AdminDashboardClient() {
   const { user } = useUser();
 
-  // ✅ Properly use hooks
   const {
     data: doctors = [],
     isLoading: doctorsLoading,
@@ -23,7 +30,6 @@ function AdminDashboardClient() {
     isLoading: appointmentsLoading,
   } = useGetAppointments();
 
-  // ✅ Safe stats calculation
   const stats = {
     totalDoctors: doctors.length,
     activeDoctors: doctors.filter((doc) => doc.isActive).length,
@@ -33,7 +39,6 @@ function AdminDashboardClient() {
     ).length,
   };
 
-  // ✅ Loading guard
   if (doctorsLoading || appointmentsLoading) {
     return <LoadingUI />;
   }
@@ -43,8 +48,9 @@ function AdminDashboardClient() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-8 pt-24">
+
         {/* ADMIN WELCOME SECTION */}
-        <div className="mb-12 flex items-center justify-between bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-3xl p-8 border border-primary/20">
+        <div className="mb-10 flex items-center justify-between bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-3xl p-8 border border-primary/20">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
@@ -71,6 +77,35 @@ function AdminDashboardClient() {
           </div>
         </div>
 
+        {/* 🔥 QUICK NAVIGATION SECTION */}
+        <div className="mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <QuickNavButton
+            href="/dashboard"
+            icon={<HomeIcon className="w-5 h-5" />}
+            label="User Dashboard"
+          />
+
+          <QuickNavButton
+            href="/appointments"
+            icon={<CalendarIcon className="w-5 h-5" />}
+            label="Appointments"
+          />
+
+          <QuickNavButton
+            href="/voice"
+            icon={<MicIcon className="w-5 h-5" />}
+            label="Voice Assistant"
+          />
+
+          <QuickNavButton
+            href="/pro"
+            icon={<CrownIcon className="w-5 h-5" />}
+            label="Pro Plans"
+          />
+
+        </div>
+
         {/* STATS */}
         <AdminStats
           totalDoctors={stats.totalDoctors}
@@ -88,6 +123,32 @@ function AdminDashboardClient() {
 }
 
 export default AdminDashboardClient;
+
+/* ==============================
+   QUICK NAV BUTTON COMPONENT
+============================== */
+
+function QuickNavButton({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link href={href}>
+      <Button
+        variant="outline"
+        className="w-full flex items-center justify-center gap-2 py-6 rounded-xl hover:bg-primary/10 transition-all"
+      >
+        {icon}
+        {label}
+      </Button>
+    </Link>
+  );
+}
 
 /* ==============================
    LOADING UI
